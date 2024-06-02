@@ -154,16 +154,90 @@ volumes:
 ```
 en el cual estamos levantando la herramienta con su respectiva base de datos (Postgress) al igual como su red compartida y algunos volumenes para respaldar informacion en caso de que los contenedores se borren por alguna razon.
 
-**3. Levantar contenedore**
+**3. Levantar contenedores**
 Para realizar la actividad, se creo una carpeta llamada SonarQube y dentro de ella se guardo el archivo docker-compose,  una ves que se guardo correctamente nos situamos en la carpeta y ejecutamos el siguiente comando: 
 
 - `docker-compose up -d`
 
-![alt text](image.png)
+![alt text](sonarqube-images/levantar-contenedores.png)
 
+Estos son algunos de los logs que pinta el SonarQube para validar que levanto correctamente: 
 
+![alt text](sonarqube-images/logs-sonarqube.png)
 
+**3. Exponer SonarQube**
+Para ver el sitio desde el navegador y pueda ser alcanzable desde Github-Actions (herramienta que se uso como CI y para ejecutar el analisis de codigo estatico), tuvimos que abrir el puerto 80 en el grupo de segfurodad de la instancia EC2 y instalar un servidor web para exponerlo en el puerto indicado. 
+Para este caso usamos **apache2**, agregamos el archivo de configuracion que requiere apache en esta ruta `/etc/apache2/sites-available` con la siguiente sintaxis: 
 
+```plaintext
+ProxyRequests Off
+ProxyPreserveHost On
+<VirtualHost *:80>
+  ServerName www.public_sonar.com
+  ServerAdmin admin@prueba.com
+  ProxyPass / http://localhost:9000/
+  ProxyPassReverse / http://www.public_sonar.com/
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+  CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+Bajamos el sitio que estaba respondiendo por default con este comando: 
+- `sudo a2dissite 000-default.conf`
+
+Y habilitamos el nuestro con los siguiente comandos:
+- `sudo a2ensite sonar.conf`
+- `systemctl reload apache2`
+
+Y asi es como se ve la plataforma desde el navegador: 
+
+![alt text](sonarqube-images/exponer-sonarqube.png)
+
+**5. Integrar SonarQube con Github-Actions**
+Para realizar el siguiente proceso es necesario obtenrer dos variables desde el sonarqube:  
+- `SONARQUBE_HOST: endpoint publico del SonarQube` , 
+- `SONARQUBE_TOKEN: token sonarqube` 
+
+Ya que practixamente es la comunicacion que realizara Github con sonarqube, estas variables tienen que guardarse como secretos dentro del respositorio o a nivel organizacion:  
+
+![alt text](sonarqube-images/variables.png)
+
+Una ves que tengamos nuestras variables, podemos continucar con el archivo de configuracion en github-actions para el analisis de codigo, el cual quedo de la siguiente forma: 
+
+```plaintext
+name: SonarQube Scan
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+      types: [opened, synchronize, reopened]
+jobs:
+  sonarqube:
+    name: SonarQube Trigger
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checking out
+      uses: actions/checkout@master
+      with:
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: kitabisa/sonarqube-action@v1.2.0
+      with:
+        host: ${{ secrets.SONARQUBE_HOST }}
+        login: ${{ secrets.SONARQUBE_TOKEN }}
+        projectKey: "bootcamp-devops-api"
+```
+
+A grandes rasgos el archivo contiene la comunicacion con sonarqube asi como el nombre del repositorio que esta analisando, esto para que guarde el proyecto con el mismo nombre que se tiene en githu y queden totalmente homologados.
+
+Cada que se abra un pr a la rama productiva se ejecutara el analisis para detectar bugs, vulnerabilities , code smells y security hotspots (este proceso se realizo tanto el el repositorio para el servicio backend como para el repositorio que contiene la aplicacion web). Esta es una salida de lo que nos pinta nuestro CI: 
+
+![alt text](sonarqube-images/logs-ci.png)
+
+y asi es como se ve finalmente en SonarQube, con el detalle especifico del analisis de codigo: 
+
+![alt text](sonarqube-images/analisis.png)
+![alt text](sonarqube-images/analisis-1.png)
 
 **5. Notificaciones a un Canal de Discord**
 
