@@ -91,7 +91,8 @@ Como parte de nuestro proceso de CI, hemos integrado SonarQube para realizar an�
 Estos informes son esenciales para mantener la calidad y seguridad del código a lo largo del tiempo.
 El proceso que se realizo para instalar **SonarQube** y obtener los analizáis de forma exitosa fue el siguiente: 
 
-<p>1. **Crear instancia ec2 en AWS**: </p>
+### Crear instancia ec2 en AWS: 
+
 Se creo una instancia **EC2** en **AWS** con las siguientes características: 
 - `Tipo de instancia: t2.medium`
 - `Plataforma: Ubuntu 24.04 (Linux)` 
