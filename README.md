@@ -89,6 +89,81 @@ Como parte de nuestro proceso de CI, hemos integrado SonarQube para realizar an�
 - ***Code smells*** o áreas de mejora.
 
 Estos informes son esenciales para mantener la calidad y seguridad del código a lo largo del tiempo.
+El proceso que se realizo para instalar SonarQube y obtener los analizis de formna exitosa fue el siguiente: 
+
+1. **Crear instancia ec2 en AWS**: 
+Se creo una instancia EC2 en AWS con las siguientes caracteristicas: 
+**Tipo de instancia:** t2.medium
+**Plataforma:** Ubuntu 24.04 (Linux) 
+**CPU Virtuales:** 2
+**Memoria:** 8Gb
+
+2. **Generar archivo docker-compose**:
+Para levantar sonarqube dentro de la instancia optamos por usar docker y docker-compose ya que es mas factible en temas de recursos, se genero el archivo docker-compose: 
+
+```plaintext
+version: "3"
+services:
+  sonarqube:
+    image: sonarqube:8.2-community
+    expose:
+      - 9000
+    ports:
+      - "127.0.0.1:9000:9000"
+    networks:
+      - sonarnet
+    environment:
+      - SONARQUBE_JDBC_URL=jdbc:postgresql://db:5432/sonar
+      - SONARQUBE_JDBC_USERNAME=sonar
+      - SONARQUBE_JDBC_PASSWORD=sonar
+    volumes:
+      - sonarqube_conff:/opt/sonarqube/conf
+      - sonarqube_dataa:/opt/sonarqube/data
+      - sonarqube_extensionss:/opt/sonarqube/extensions
+      - sonarqube_bundled-pluginss:/opt/sonarqube/lib/bundled-plugins
+    deploy:
+      resources:
+        limits:
+          cpus: '0.001'
+          memory: 500M
+        reservations:
+          cpus: '0.0001'
+          memory: 200M
+
+  db:
+    image: postgres
+    networks:
+      - sonarnet
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+    volumes:
+      - postgresqll:/var/lib/postgresql
+      - postgresql_dataa:/var/lib/postgresql/data
+
+networks:
+  sonarnet:
+
+volumes:
+  sonarqube_conff:
+  sonarqube_dataa:
+  sonarqube_extensionss:
+  sonarqube_bundled-pluginss:
+  postgresqll:
+  postgresql_dataa:
+```
+en el cual estamos levantando la herramienta con su respectiva base de datos (Postgress) al igual como su red compartida y algunos volumenes para respaldar informacion en caso de que los contenedores se borren por alguna razon.
+
+**3. Levantar contenedore**
+Para realizar la actividad, se creo una carpeta llamada SonarQube y dentro de ella se guardo el archivo docker-compose,  una ves que se guardo correctamente nos situamos en la carpeta y ejecutamos el siguiente comando: 
+
+- `docker-compose up -d`
+
+![alt text](image.png)
+
+
+
+
 
 **5. Notificaciones a un Canal de Discord**
 
