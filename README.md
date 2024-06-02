@@ -89,6 +89,46 @@ Como parte de nuestro proceso de CI, hemos integrado SonarQube para realizar an�
 - ***Code smells*** o áreas de mejora.
 
 Estos informes son esenciales para mantener la calidad y seguridad del código a lo largo del tiempo.
+
+**5. Notificaciones a un Canal de Discord**
+
+Finalmente, hemos configurado notificaciones para que se envíen a un canal de Discord. Estas notificaciones informan al equipo de desarrollo sobre el estado de las construcciones (builds) y cualquier problema detectado durante el proceso de CI. Esto ayuda a mantener a todos los miembros del equipo al tanto de la situación del proyecto y a responder rápidamente a cualquier problema.
+
+#### Flujo de Trabajo en GitHub Actions
+
+El flujo de trabajo de GitHub Actions se define en un archivo YAML dentro del directorio `.github/workflows/`. Este archivo especifica:
+
+- Los disparadores (triggers) del flujo de trabajo (por ejemplo, push, pull request).
+- Los trabajos (jobs) que se ejecutarán.
+- Los pasos (steps) dentro de cada trabajo.
+
+Cada paso puede incluir la ejecución de comandos, la utilización de acciones de terceros o la ejecución de scripts personalizados.
+
+A continuación, se describen las secciones principales del archivo YAML utilizado en nuestro flujo de trabajo:
+
+##### Disparadores (Triggers)
+
+Especifican cuándo se debe ejecutar el flujo de trabajo. Ejemplos comunes incluyen:
+
+- `on: push` - Se ejecuta en cada push al repositorio.
+- `on: pull_request` - Se ejecuta en cada pull request creada o actualizada.
+
+##### Trabajos (Jobs)
+
+Define los trabajos que se ejecutarán en el flujo de trabajo. Cada trabajo puede tener múltiples pasos y puede ejecutarse en paralelo con otros trabajos. Ejemplos de trabajos incluyen:
+
+- `build` - Para construir la imagen Docker.
+- `analyze` - Para ejecutar el análisis con SonarQube.
+- `deploy` - Para subir la imagen a Docker Hub.
+
+3. **Gestión del Estado de las Aplicaciones**: 
+    - Dentro del repositorio `bootcamp-devops-gitops`, los directorios `production` y `development` para cada servicio contienen los manifiestos de Kubernetes necesarios para crear o actualizar los deployments y services.
+    - Para crear el servicio en Kubernetes, el mismo repositorio tiene otro directorio de aplicaciones para ArgoCD, donde detecta cambios y crea el deployment en caso de que no exista o lo modifica de acuerdo a los cambios.
+4. **Entrega Continua con ArgoCD**: ArgoCD monitorea el directorio de aplicaciones en el repositorio y sincroniza el estado del clúster de Kubernetes con el estado definido en los manifiestos de Git. Detecta cualquier cambio y aplica las actualizaciones necesarias para mantener el clúster en el estado deseado.
+6. **Monitoreo y Visualización con Prometheus y Grafana**: Prometheus recolecta métricas del clúster y las aplicaciones, y Grafana visualiza estas métricas en dashboards interactivos.
+
+# SonarQube
+
 El proceso que se realizo para instalar **SonarQube** y obtener los analizáis de forma exitosa fue el siguiente: 
 
 ### Crear instancia ec2 en AWS: 
@@ -99,7 +139,8 @@ Se creo una instancia **EC2** en **AWS** con las siguientes características:
 - `CPU Virtuales: 2 `
 - `Memoria: 8Gb `
 
-2. **Generar archivo docker-compose**:
+### Generar archivo docker-compose
+
 Para levantar **SonarQube** dentro de la instancia optamos por usar **Docker** y **Docker-Compose** ya que es mas factible en temas de recursos, se genero el archivo docker-compose: 
 
 ```plaintext
@@ -155,7 +196,8 @@ volumes:
 ```
 En el cual estamos levantando la herramienta con su respectiva base de datos **(Postgresql)** al igual como su red compartida y algunos volúmenes para respaldar información en caso de que los contenedores se borren por alguna razón.
 
-3. **Levantar contenedores**
+### Levantar contenedores
+
 Para realizar la actividad, se creo una carpeta llamada **SonarQube** y dentro de ella se guardo el archivo docker-compose,  una ves que se guardo correctamente nos situamos en la carpeta y ejecutamos el siguiente comando: 
 
 - `docker-compose up -d`
@@ -166,7 +208,8 @@ Estos son algunos de los logs que pinta el **SonarQube** para validar que levant
 
 ![alt text](sonarqube-images/logs-sonarqube.png)
 
-4. **Exponer SonarQube**
+### Exponer SonarQube
+
 Para ver el sitio desde el navegador y pueda ser alcanzable desde **Github-Actions** (herramienta que se uso como CI y para ejecutar el análisis de código estático), tuvimos que abrir el puerto 80 en el grupo de seguridad de la instancia **EC2** y instalar un servidor web para exponerlo en el puerto indicado. 
 Para este caso usamos **apache2**, agregamos el archivo de configuración que requiere apache en esta ruta `/etc/apache2/sites-available` con la siguiente sintaxis: 
 
@@ -193,7 +236,8 @@ Y así es como se ve la plataforma desde el navegador:
 
 ![alt text](sonarqube-images/exponer-sonarqube.png)
 
-5. **Integrar SonarQube con Github-Actions**
+### Integrar SonarQube con Github-Actions
+
 Para realizar el siguiente proceso es necesario obtener dos variables desde el **SonarQube**:  
 - `SONARQUBE_HOST: endpoint publico del SonarQube`
 - `SONARQUBE_TOKEN: este es el token utilizado para autenticar el acceso a SonarQube` 
@@ -239,43 +283,5 @@ Y así es como se ve finalmente en **SonarQube**, con el detalle especifico del 
 
 ![alt text](sonarqube-images/analisis.png)
 ![alt text](sonarqube-images/analisis-1.png)
-
-**5. Notificaciones a un Canal de Discord**
-
-Finalmente, hemos configurado notificaciones para que se envíen a un canal de Discord. Estas notificaciones informan al equipo de desarrollo sobre el estado de las construcciones (builds) y cualquier problema detectado durante el proceso de CI. Esto ayuda a mantener a todos los miembros del equipo al tanto de la situación del proyecto y a responder rápidamente a cualquier problema.
-
-#### Flujo de Trabajo en GitHub Actions
-
-El flujo de trabajo de GitHub Actions se define en un archivo YAML dentro del directorio `.github/workflows/`. Este archivo especifica:
-
-- Los disparadores (triggers) del flujo de trabajo (por ejemplo, push, pull request).
-- Los trabajos (jobs) que se ejecutarán.
-- Los pasos (steps) dentro de cada trabajo.
-
-Cada paso puede incluir la ejecución de comandos, la utilización de acciones de terceros o la ejecución de scripts personalizados.
-
-A continuación, se describen las secciones principales del archivo YAML utilizado en nuestro flujo de trabajo:
-
-##### Disparadores (Triggers)
-
-Especifican cuándo se debe ejecutar el flujo de trabajo. Ejemplos comunes incluyen:
-
-- `on: push` - Se ejecuta en cada push al repositorio.
-- `on: pull_request` - Se ejecuta en cada pull request creada o actualizada.
-
-##### Trabajos (Jobs)
-
-Define los trabajos que se ejecutarán en el flujo de trabajo. Cada trabajo puede tener múltiples pasos y puede ejecutarse en paralelo con otros trabajos. Ejemplos de trabajos incluyen:
-
-- `build` - Para construir la imagen Docker.
-- `analyze` - Para ejecutar el análisis con SonarQube.
-- `deploy` - Para subir la imagen a Docker Hub.
-
-3. **Gestión del Estado de las Aplicaciones**: 
-    - Dentro del repositorio `bootcamp-devops-gitops`, los directorios `production` y `development` para cada servicio contienen los manifiestos de Kubernetes necesarios para crear o actualizar los deployments y services.
-    - Para crear el servicio en Kubernetes, el mismo repositorio tiene otro directorio de aplicaciones para ArgoCD, donde detecta cambios y crea el deployment en caso de que no exista o lo modifica de acuerdo a los cambios.
-4. **Entrega Continua con ArgoCD**: ArgoCD monitorea el directorio de aplicaciones en el repositorio y sincroniza el estado del clúster de Kubernetes con el estado definido en los manifiestos de Git. Detecta cualquier cambio y aplica las actualizaciones necesarias para mantener el clúster en el estado deseado.
-6. **Monitoreo y Visualización con Prometheus y Grafana**: Prometheus recolecta métricas del clúster y las aplicaciones, y Grafana visualiza estas métricas en dashboards interactivos.
-
 
 
