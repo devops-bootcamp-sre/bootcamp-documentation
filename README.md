@@ -89,17 +89,17 @@ Como parte de nuestro proceso de CI, hemos integrado SonarQube para realizar an�
 - ***Code smells*** o áreas de mejora.
 
 Estos informes son esenciales para mantener la calidad y seguridad del código a lo largo del tiempo.
-El proceso que se realizo para instalar SonarQube y obtener los analizis de formna exitosa fue el siguiente: 
+El proceso que se realizo para instalar **SonarQube** y obtener los analizáis de forma exitosa fue el siguiente: 
 
 1. **Crear instancia ec2 en AWS**: 
-Se creo una instancia EC2 en AWS con las siguientes caracteristicas: 
-**Tipo de instancia:** t2.medium
-**Plataforma:** Ubuntu 24.04 (Linux) 
-**CPU Virtuales:** 2
-**Memoria:** 8Gb
+Se creo una instancia **EC2** en **AWS** con las siguientes características: 
+<br **Tipo de instancia:** t2.medium />
+<br **Plataforma:** Ubuntu 24.04 (Linux) />
+<br **CPU Virtuales:** 2 />
+<br **Memoria:** 8Gb />
 
 2. **Generar archivo docker-compose**:
-Para levantar sonarqube dentro de la instancia optamos por usar docker y docker-compose ya que es mas factible en temas de recursos, se genero el archivo docker-compose: 
+Para levantar **SonarQube** dentro de la instancia optamos por usar **Docker** y **Docker-Compose** ya que es mas factible en temas de recursos, se genero el archivo docker-compose: 
 
 ```plaintext
 version: "3"
@@ -152,22 +152,22 @@ volumes:
   postgresqll:
   postgresql_dataa:
 ```
-en el cual estamos levantando la herramienta con su respectiva base de datos (Postgress) al igual como su red compartida y algunos volumenes para respaldar informacion en caso de que los contenedores se borren por alguna razon.
+En el cual estamos levantando la herramienta con su respectiva base de datos **(Postgresql)** al igual como su red compartida y algunos volúmenes para respaldar información en caso de que los contenedores se borren por alguna razón.
 
-**3. Levantar contenedores**
-Para realizar la actividad, se creo una carpeta llamada SonarQube y dentro de ella se guardo el archivo docker-compose,  una ves que se guardo correctamente nos situamos en la carpeta y ejecutamos el siguiente comando: 
+3. **Levantar contenedores**
+Para realizar la actividad, se creo una carpeta llamada **SonarQube** y dentro de ella se guardo el archivo docker-compose,  una ves que se guardo correctamente nos situamos en la carpeta y ejecutamos el siguiente comando: 
 
 - `docker-compose up -d`
 
 ![alt text](sonarqube-images/levantar-contenedores.png)
 
-Estos son algunos de los logs que pinta el SonarQube para validar que levanto correctamente: 
+Estos son algunos de los logs que pinta el **SonarQube** para validar que levanto correctamente: 
 
 ![alt text](sonarqube-images/logs-sonarqube.png)
 
-**3. Exponer SonarQube**
-Para ver el sitio desde el navegador y pueda ser alcanzable desde Github-Actions (herramienta que se uso como CI y para ejecutar el analisis de codigo estatico), tuvimos que abrir el puerto 80 en el grupo de segfurodad de la instancia EC2 y instalar un servidor web para exponerlo en el puerto indicado. 
-Para este caso usamos **apache2**, agregamos el archivo de configuracion que requiere apache en esta ruta `/etc/apache2/sites-available` con la siguiente sintaxis: 
+4. **Exponer SonarQube**
+Para ver el sitio desde el navegador y pueda ser alcanzable desde **Github-Actions** (herramienta que se uso como CI y para ejecutar el análisis de código estático), tuvimos que abrir el puerto 80 en el grupo de seguridad de la instancia **EC2** y instalar un servidor web para exponerlo en el puerto indicado. 
+Para este caso usamos **apache2**, agregamos el archivo de configuración que requiere apache en esta ruta `/etc/apache2/sites-available` con la siguiente sintaxis: 
 
 ```plaintext
 ProxyRequests Off
@@ -188,20 +188,20 @@ Y habilitamos el nuestro con los siguiente comandos:
 - `sudo a2ensite sonar.conf`
 - `systemctl reload apache2`
 
-Y asi es como se ve la plataforma desde el navegador: 
+Y así es como se ve la plataforma desde el navegador: 
 
 ![alt text](sonarqube-images/exponer-sonarqube.png)
 
-**5. Integrar SonarQube con Github-Actions**
-Para realizar el siguiente proceso es necesario obtenrer dos variables desde el sonarqube:  
+5. **Integrar SonarQube con Github-Actions**
+Para realizar el siguiente proceso es necesario obtener dos variables desde el **SonarQube**:  
 - `SONARQUBE_HOST: endpoint publico del SonarQube` , 
 - `SONARQUBE_TOKEN: token sonarqube` 
 
-Ya que practixamente es la comunicacion que realizara Github con sonarqube, estas variables tienen que guardarse como secretos dentro del respositorio o a nivel organizacion:  
+Ya que prácticamente es la comunicación que realizara **Github** con **SonarQube**, estas variables tienen que guardarse como secretos dentro del repositorio o a nivel organización:
 
 ![alt text](sonarqube-images/variables.png)
 
-Una ves que tengamos nuestras variables, podemos continucar con el archivo de configuracion en github-actions para el analisis de codigo, el cual quedo de la siguiente forma: 
+Una ves que tengamos nuestras variables, podemos continuar con el archivo de configuración en **Github-Actions** para el análisis de código, el cual quedo de la siguiente forma:
 
 ```plaintext
 name: SonarQube Scan
@@ -228,13 +228,13 @@ jobs:
         projectKey: "bootcamp-devops-api"
 ```
 
-A grandes rasgos el archivo contiene la comunicacion con sonarqube asi como el nombre del repositorio que esta analisando, esto para que guarde el proyecto con el mismo nombre que se tiene en githu y queden totalmente homologados.
+A grandes rasgos el archivo contiene la comunicación con **SonarQube** así como el nombre del repositorio que esta analizando, esto para que guarde el proyecto con el mismo nombre que se tiene en **Github** y queden totalmente homologados.
 
-Cada que se abra un pr a la rama productiva se ejecutara el analisis para detectar bugs, vulnerabilities , code smells y security hotspots (este proceso se realizo tanto el el repositorio para el servicio backend como para el repositorio que contiene la aplicacion web). Esta es una salida de lo que nos pinta nuestro CI: 
+Cada que se abra un pr a la rama productiva se ejecutara el análisis para detectar bugs, vulnerabilities , code smells y security hotspots (este proceso se realizo tanto el el repositorio para el servicio backend como para el repositorio que contiene la aplicación web). Esta es una salida de lo que nos pinta nuestro CI:
 
 ![alt text](sonarqube-images/logs-ci.png)
 
-y asi es como se ve finalmente en SonarQube, con el detalle especifico del analisis de codigo: 
+Y así es como se ve finalmente en **SonarQube**, con el detalle especifico del análisis de código:
 
 ![alt text](sonarqube-images/analisis.png)
 ![alt text](sonarqube-images/analisis-1.png)
