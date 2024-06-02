@@ -1,5 +1,7 @@
 # DevOps Bootcamp
 
+Se puede encontrar la documentacion en la (Wiki)[https://github.com/devops-bootcamp-sre/bootcamp-devops-gitops/wiki/DevOps-Bootcamp] del proyecto 
+
 ## Menú de Navegación
 
 - [Introducción](#introducción)
