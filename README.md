@@ -93,10 +93,10 @@ El proceso que se realizo para instalar **SonarQube** y obtener los analizáis d
 
 1. **Crear instancia ec2 en AWS**: 
 Se creo una instancia **EC2** en **AWS** con las siguientes características: 
-- `**Tipo de instancia:** t2.medium`
-- `**Plataforma:** Ubuntu 24.04 (Linux)` 
-- `**CPU Virtuales:** 2 `
-- `**Memoria:** 8Gb `
+- `Tipo de instancia: t2.medium`
+- `Plataforma: Ubuntu 24.04 (Linux)` 
+- `CPU Virtuales: 2 `
+- `Memoria: 8Gb `
 
 2. **Generar archivo docker-compose**:
 Para levantar **SonarQube** dentro de la instancia optamos por usar **Docker** y **Docker-Compose** ya que es mas factible en temas de recursos, se genero el archivo docker-compose: 
@@ -195,7 +195,7 @@ Y así es como se ve la plataforma desde el navegador:
 5. **Integrar SonarQube con Github-Actions**
 Para realizar el siguiente proceso es necesario obtener dos variables desde el **SonarQube**:  
 - `SONARQUBE_HOST: endpoint publico del SonarQube`
-- `SONARQUBE_TOKEN: token sonarqube` 
+- `SONARQUBE_TOKEN: este es el token utilizado para autenticar el acceso a SonarQube` 
 
 Ya que prácticamente es la comunicación que realizara **Github** con **SonarQube**, estas variables tienen que guardarse como secretos dentro del repositorio o a nivel organización:
 
