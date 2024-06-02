@@ -198,7 +198,7 @@ En el cual estamos levantando la herramienta con su respectiva base de datos **(
 
 ### Levantar contenedores
 
-Para realizar la actividad, se creo una carpeta llamada **SonarQube** y dentro de ella se guardo el archivo docker-compose,  una ves que se guardo correctamente nos situamos en la carpeta y ejecutamos el siguiente comando: 
+Se creo una carpeta llamada **SonarQube** y dentro de ella se guardo el archivo docker-compose,  una ves que se guardo correctamente nos situamos en la carpeta y ejecutamos el siguiente comando: 
 
 - `docker-compose up -d`
 
@@ -238,7 +238,7 @@ Y así es como se ve la plataforma desde el navegador:
 
 ### Integrar SonarQube con Github-Actions
 
-Para realizar el siguiente proceso es necesario obtener dos variables desde el **SonarQube**:  
+En este proceso es necesario obtener dos variables desde el **SonarQube**:  
 - `SONARQUBE_HOST: endpoint publico del SonarQube`
 - `SONARQUBE_TOKEN: este es el token utilizado para autenticar el acceso a SonarQube` 
 
